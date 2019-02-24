@@ -24,6 +24,93 @@ public class PeerRecord {
 		
 		
 	}
+
+
+
+	public String getHostname() {
+		return hostname;
+	}
+
+
+
+	public void setHostname(String hostname) {
+		this.hostname = hostname;
+	}
+
+
+
+	public int getCookie() {
+		return cookie;
+	}
+
+
+
+	public void setCookie(int cookie) {
+		this.cookie = cookie;
+	}
+
+
+
+	public boolean isActive() {
+		return active;
+	}
+
+
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
+
+
+	public int getTtl() {
+		return ttl;
+	}
+
+
+
+	public void setTtl(int ttl) {
+		this.ttl = ttl;
+	}
+
+
+
+	public int getPortNumber() {
+		return portNumber;
+	}
+
+
+
+	public void setPortNumber(int portNumber) {
+		this.portNumber = portNumber;
+	}
+
+
+
+	public int getActivityNumber() {
+		return activityNumber;
+	}
+
+
+
+	public void setActivityNumber(int activityNumber) {
+		this.activityNumber = activityNumber;
+	}
+
+
+
+	public String getLastRegisteredDate() {
+		return lastRegisteredDate;
+	}
+
+
+
+	public void setLastRegisteredDate(String lastRegisteredDate) {
+		this.lastRegisteredDate = lastRegisteredDate;
+	}
+	
+	
+	
 	
 	
 }
