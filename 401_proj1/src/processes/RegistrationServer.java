@@ -28,7 +28,6 @@ public class RegistrationServer {
 	            System.exit(-1);
 	        }
 		 
-		 System.out.println("Terminating RS server...");
 		
 		
 	}

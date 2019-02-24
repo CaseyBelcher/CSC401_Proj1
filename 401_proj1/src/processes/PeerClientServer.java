@@ -14,7 +14,8 @@ import data_model.RFC;
 public class PeerClientServer {
 
 	
-	public LinkedList<RFC> rfcIndex; 
+	public LinkedList<RFC> rfcIndex;
+	// TODO: find correct non-local hostname 
 	private static String hostName; 
 	public static int portNumber = 65243;
 	
@@ -40,19 +41,32 @@ public class PeerClientServer {
             ) {
                 BufferedReader stdIn =
                     new BufferedReader(new InputStreamReader(System.in));
-                String fromServer;
+                String fromServer = "";
                 String fromUser;
+                 
 
                 while ((fromUser = stdIn.readLine()) != null) {
-                    out.println(fromUser);
+                    // out.println(fromUser);
+                    String test = "PQuery" + "\n" + 
+                    							"Host: me" + "\n" + 
+                    							"Cookie: 6" + "\n" + 
+                    							"RFCServerPortNumber: 6" + "\n";  
+                    		
+                    out.println(test);
                     
-                    fromServer = in.readLine(); 
-                    if(fromServer != null) { 
-                    	System.out.println("Server: " + fromServer);
+                    
+                    while(in.ready()) {
+                    	fromServer = in.readLine(); 
+                    	if(!fromServer.equals("")){
+                    		System.out.println("Server: " + fromServer);
+                    	}
+                    	
+                    	 
+                    	
                     }
-                    if (fromServer.equals("Bye.")) { 
-                        break; 
-                    }
+                     
+                    
+                   
                     
                 }
             } catch (UnknownHostException e) {

@@ -20,8 +20,20 @@ public class PeerRecord {
 	
 	
 	
-	public PeerRecord() { 
+	public PeerRecord(String hostname, int cookie, boolean active, int ttl, int portNumber, 
+			int activityNumber, String date) { 
 		
+		this.hostname = hostname; 
+		this.cookie = cookie; 
+		this.active = active; 
+		this.ttl = ttl; 
+		this.portNumber = portNumber; 
+		this.activityNumber = activityNumber; 
+		this.lastRegisteredDate = date; 
+		
+	}
+	
+	public PeerRecord() { 
 		
 	}
 
