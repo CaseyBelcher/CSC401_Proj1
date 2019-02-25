@@ -1,5 +1,6 @@
 package data_model;
 
+import java.time.LocalDateTime;
 
 public class PeerRecord {
 
@@ -20,16 +21,15 @@ public class PeerRecord {
 	
 	
 	
-	public PeerRecord(String hostname, int cookie, boolean active, int ttl, int portNumber, 
-			int activityNumber, String date) { 
+	public PeerRecord(String hostname, int cookie, int portNumber) { 
 		
 		this.hostname = hostname; 
 		this.cookie = cookie; 
-		this.active = active; 
-		this.ttl = ttl; 
+		this.active = true; 
+		this.ttl = 7200; 
 		this.portNumber = portNumber; 
-		this.activityNumber = activityNumber; 
-		this.lastRegisteredDate = date; 
+		this.activityNumber = 1; 
+		this.lastRegisteredDate = LocalDateTime.now().toString();  
 		
 	}
 	
@@ -38,6 +38,15 @@ public class PeerRecord {
 	}
 
 
+	public String toString() { 
+	  return "Hostname:"  + this.hostname + "\n" + 
+	      "Cookie:" + this.cookie + "\n" + 
+	      "Active:" + this.active + "\n" + 
+	      "TTL:" + this.ttl + "\n" +  
+	      "Port-Number:" + this.portNumber + "\n" + 
+	      "Activity-Number:" + this.activityNumber  + "\n" + 
+	      "lastDate:" + this.lastRegisteredDate; 
+	}
 
 	public String getHostname() {
 		return hostname;

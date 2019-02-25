@@ -8,6 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Socket;
 import java.util.LinkedList;
+import java.util.Random;
 import java.util.Scanner;
 
 import data_model.PeerRecord;
@@ -17,7 +18,7 @@ import data_model.PeerRecord;
 public class RSServerThread extends Thread {
     
 	private Socket socket = null;
-	private static LinkedList<PeerRecord> peerList; 
+	private LinkedList<PeerRecord> peerList; 
 	private Method currentMethod; 
 	private String currentHost = ""; 
 	private int currentCookie = -1; 
@@ -88,12 +89,12 @@ public class RSServerThread extends Thread {
 	    		else if(thisWord.equals("RFCServerPortNumber:")) { 
 	    			this.currentRFCPortNumber = Integer.parseInt(line.next()); 
 	    		}
-	    		else if(thisWord.equals("#")) { 
-	    			if(this.currentMethod != null) { 
-		    			output = (String) currentMethod.invoke(this);
-		    		}
-		    		this.currentMethod = null;
-	    		}
+//	    		else if(thisWord.equals("#")) { 
+//	    			if(this.currentMethod != null) { 
+//		    			output = (String) currentMethod.invoke(this);
+//		    		}
+//		    		this.currentMethod = null;
+//	    		}
 	    		 
 	    	}
 	    	else { 
@@ -122,14 +123,34 @@ public class RSServerThread extends Thread {
     
     public String pQuery() { 
     	
+      boolean found = false; 
+    	for(int i = 0; i < peerList.size(); i++) { 
+    	  if(peerList.get(i).cookie == this.currentCookie) { 
+    	    found = true; 
+    	    break; 
+    	  }
+    	}
     	
+    	if(!found) {   
+    	  PeerRecord newPeer = new PeerRecord(this.currentHost, this.currentCookie,
+    	      this.currentRFCPortNumber); 
+    	  peerList.add(newPeer); 
+    	  
+    	} 
+
     	
-    	String output = "its-a-me...pQuery!" + "\n" + 
-    			"Host: " + this.currentHost + "\n" +  
-    			"Cookie: " + this.currentCookie + "\n" + 
-    			"RFCServerPortNumber: " + this.currentRFCPortNumber + "\n"; 
+//    	String output = "its-a-me...pQuery!" + "\n" + 
+//    			"Host: " + this.currentHost + "\n" +  
+//    			"Cookie: " + this.currentCookie + "\n" + 
+//    			"RFCServerPortNumber: " + this.currentRFCPortNumber + "\n"; 
     	
-    	return output; 
+    	String output = ""; 
+    	for(int i = 0; i < peerList.size(); i++) { 
+    	  output += peerList.get(i).toString(); 
+    	}
+    	 
+    	
+    	return output + "\n"; 
     			
     }
     
