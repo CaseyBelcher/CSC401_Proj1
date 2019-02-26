@@ -47,42 +47,76 @@ public class RSServerThread extends Thread {
      * method = obj.getClass().getMethod(methodName, param1.class, param2.class,
      * ..); }
      *
+     * @throws IOException
+     *
      **/
-    public String processInput ( Scanner line ) {
+    public String processInput ( String message, ObjectOutputStream out, ObjectInputStream in ) throws IOException {
         System.out.println( "calling processInput!" );
         final String output = "";
+        final Scanner s = new Scanner( message );
+        final String header = s.nextLine();
+        if ( header.equals( "Register" ) ) {
+            register( message, out );
+        }
+        else if ( header.equals( "PQuery" ) ) {
+            pQuery( out );
+        }
 
         return output;
     }
 
-    public String pQuery () {
-
+    public void register ( String message, ObjectOutputStream out ) throws IOException {
+        final Scanner s = new Scanner( message );
+        // skip over header
+        s.nextLine();
+        // skip over "Host: "
+        s.next();
+        // get the host address
+        final String hostAddress = s.nextLine();
+        // skip over cookie for now
+        s.nextLine();
+        // get the local port number
+        s.next();
+        final int localPort = s.nextInt();
         boolean found = false;
         for ( int i = 0; i < peerList.size(); i++ ) {
-            if ( peerList.get( i ).cookie == this.currentCookie ) {
+            final PeerRecord current = peerList.get( i );
+            if ( current.cookie == this.currentCookie ) {
                 found = true;
+                current.setTtl( 7200 );
+
+                if ( !current.isActive() ) {
+                    current.setActive( true );
+                }
                 break;
             }
         }
 
         if ( !found ) {
-            final PeerRecord newPeer = new PeerRecord( this.currentHost, this.currentCookie,
-                    this.currentRFCPortNumber );
+            final PeerRecord newPeer = new PeerRecord( hostAddress, 0, localPort );
             peerList.add( newPeer );
 
+            // change later
+            out.writeUTF( "You are now registered" );
+            out.flush();
+
+        }
+        else {
+            out.writeUTF( "Welcome back, you previously registered" );
+            out.flush();
         }
 
-        // String output = "its-a-me...pQuery!" + "\n" +
-        // "Host: " + this.currentHost + "\n" +
-        // "Cookie: " + this.currentCookie + "\n" +
-        // "RFCServerPortNumber: " + this.currentRFCPortNumber + "\n";
+    }
 
-        String output = "";
-        for ( int i = 0; i < peerList.size(); i++ ) {
-            output += peerList.get( i ).toString();
+    public void pQuery ( ObjectOutputStream out ) {
+        try {
+            out.writeObject( peerList );
+            out.flush();
         }
-
-        return output + "\n";
+        catch ( final IOException e ) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
     }
 
@@ -104,13 +138,9 @@ public class RSServerThread extends Thread {
             final ObjectOutputStream output = new ObjectOutputStream( socket.getOutputStream() );
             final ObjectInputStream input = new ObjectInputStream( socket.getInputStream() );
 
-            final int thing = input.readInt();
-            output.writeInt( thing );
-            output.flush();
-            final PeerRecord p = new PeerRecord( "Patrick", thing, 0 );
-            peerList.add( p );
-            output.writeObject( peerList );
-            output.flush();
+            final String message = input.readUTF();
+            processInput( message, output, input );
+            System.out.println( peerList.size() );
 
         }
         catch ( final IOException e ) {
