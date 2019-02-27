@@ -18,7 +18,7 @@ public class RFC implements Serializable {
      */
     public int                ttl;
 
-    public RFC ( final int rfcNumber, final String title, final String hostname ) {
+    public RFC ( int rfcNumber, String title, String hostname ) {
         this.rfcNumber = rfcNumber;
         this.title = title;
         this.hostname = hostname;

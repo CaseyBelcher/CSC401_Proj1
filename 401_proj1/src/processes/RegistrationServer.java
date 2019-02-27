@@ -12,7 +12,7 @@ public class RegistrationServer {
     public static LinkedList<PeerRecord> peerList;
     public static int                    portNumber = 65243;
 
-    public static void main ( final String[] args ) {
+    public static void main ( String[] args ) {
 
         System.out.println( "Starting RS server..." );
         peerList = new LinkedList<PeerRecord>();

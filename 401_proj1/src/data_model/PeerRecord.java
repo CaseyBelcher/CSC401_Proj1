@@ -24,7 +24,7 @@ public class PeerRecord implements Serializable {
     /** last time /date the peer registered */
     public String             lastRegisteredDate;
 
-    public PeerRecord ( final String hostname, final int cookie, final int portNumber, final boolean active ) {
+    public PeerRecord ( String hostname, int cookie, int portNumber, boolean active ) {
 
         this.hostname = hostname;
         this.cookie = cookie;
@@ -51,7 +51,7 @@ public class PeerRecord implements Serializable {
         return hostname;
     }
 
-    public void setHostname ( final String hostname ) {
+    public void setHostname ( String hostname ) {
         this.hostname = hostname;
     }
 
@@ -59,7 +59,7 @@ public class PeerRecord implements Serializable {
         return cookie;
     }
 
-    public void setCookie ( final int cookie ) {
+    public void setCookie ( int cookie ) {
         this.cookie = cookie;
     }
 
@@ -67,7 +67,7 @@ public class PeerRecord implements Serializable {
         return active;
     }
 
-    public void setActive ( final boolean active ) {
+    public void setActive ( boolean active ) {
         this.active = active;
     }
 
@@ -75,7 +75,7 @@ public class PeerRecord implements Serializable {
         return ttl;
     }
 
-    public void setTtl ( final int ttl ) {
+    public void setTtl ( int ttl ) {
         this.ttl = ttl;
     }
 
@@ -83,7 +83,7 @@ public class PeerRecord implements Serializable {
         return portNumber;
     }
 
-    public void setPortNumber ( final int portNumber ) {
+    public void setPortNumber ( int portNumber ) {
         this.portNumber = portNumber;
     }
 
@@ -91,7 +91,7 @@ public class PeerRecord implements Serializable {
         return activityNumber;
     }
 
-    public void setActivityNumber ( final int activityNumber ) {
+    public void setActivityNumber ( int activityNumber ) {
         this.activityNumber = activityNumber;
     }
 
@@ -99,7 +99,7 @@ public class PeerRecord implements Serializable {
         return lastRegisteredDate;
     }
 
-    public void setLastRegisteredDate ( final String lastRegisteredDate ) {
+    public void setLastRegisteredDate ( String lastRegisteredDate ) {
         this.lastRegisteredDate = lastRegisteredDate;
     }
 
