@@ -11,6 +11,7 @@ public class RegistrationServer {
 
     public static LinkedList<PeerRecord> peerList;
     public static int                    portNumber = 65243;
+    public static int                    cookieNumber;
 
     public static void main ( String[] args ) {
 

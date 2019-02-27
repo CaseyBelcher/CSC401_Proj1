@@ -18,7 +18,7 @@ public class RSServerThread extends Thread {
     private final LinkedList<PeerRecord> peerList;
     private Method                       currentMethod;
     private final String                 currentHost          = "";
-    private final int                    currentCookie        = -1;
+    private int                          currentCookie        = -1;
     private final int                    currentRFCPortNumber = -1;
 
     public RSServerThread ( Socket socket, LinkedList<PeerRecord> myPeerList ) {
@@ -59,7 +59,7 @@ public class RSServerThread extends Thread {
             register( message, out );
         }
         else if ( header.equals( "PQuery" ) ) {
-            pQuery( out );
+            pQuery( message, out );
         }
 
         return output;
@@ -97,20 +97,36 @@ public class RSServerThread extends Thread {
             peerList.add( newPeer );
 
             // change later
-            out.writeUTF( "You are now registered" );
+            out.writeInt( peerList.size() );
             out.flush();
 
         }
         else {
-            out.writeUTF( "Welcome back, you previously registered" );
+            out.writeInt( -1 );
             out.flush();
         }
 
     }
 
-    public void pQuery ( ObjectOutputStream out ) {
+    public void pQuery ( String message, ObjectOutputStream out ) {
+        final Scanner s = new Scanner( message );
+        // skip over header
+        s.nextLine();
+        // skip over "Host: "
+        s.nextLine();
+        // skip over cookie for now
+        s.next();
+        currentCookie = s.nextInt();
+        s.nextLine();
         try {
-            out.writeObject( peerList );
+            final LinkedList<PeerRecord> temp = new LinkedList<PeerRecord>();
+            for ( int i = 0; i < peerList.size(); i++ ) {
+                final PeerRecord p = peerList.get( i );
+                if ( p.isActive() && p.getCookie() != currentCookie ) {
+                    temp.add( p );
+                }
+            }
+            out.writeObject( temp );
             out.flush();
         }
         catch ( final IOException e ) {

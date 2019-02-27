@@ -51,12 +51,7 @@ public class PeerClientServer {
             System.out.print( "Enter a command: " );
             while ( true ) {
                 final String request = s.nextLine();
-                // if command is get index then get the index from the other
-                // peer
-                if ( request.equals( "get index" ) ) {
-                    getIndex();
-                }
-                else if ( request.equals( "p" ) ) {
+                if ( request.equals( "p" ) ) {
                     pQuery();
                     // else the command is get a specific RFC
                     // parse the input for which rfc
@@ -83,27 +78,17 @@ public class PeerClientServer {
          * @param output
          * @param input
          */
-        public void getIndex () {
+        public void getIndex ( PeerRecord p ) {
             final StringBuilder message = new StringBuilder( "GET RFC-Index\nHOST: " );
-            int peerPort = 0;
-            String peerAddress = "";
             try {
-                for ( int i = 0; i < peerList.size(); i++ ) {
-                    if ( peerList.get( i ).getPortNumber() != localPortNumber ) {
-                        peerPort = peerList.get( i ).getPortNumber();
-                        peerAddress = peerList.get( i ).getHostname().trim();
-                        break;
-                    }
-                }
                 // Try to create a socket connection to the given port
                 // number.
-                System.out.println( peerPort + peerAddress );
-                final Socket sock = new Socket( peerAddress, peerPort );
+                final Socket sock = new Socket( p.getHostname().trim(), p.getPortNumber() );
                 // Get formatted input/output streams for talking with the
                 // server.
                 final ObjectInputStream input = new ObjectInputStream( sock.getInputStream() );
                 final ObjectOutputStream output = new ObjectOutputStream( sock.getOutputStream() );
-                message.append( peerAddress );
+                message.append( p.getHostname().trim() );
                 output.writeUTF( message.toString() );
                 output.flush();
                 final LinkedList<RFC> temp = (LinkedList<RFC>) input.readObject();
@@ -129,27 +114,31 @@ public class PeerClientServer {
          * @param RFCNumber
          */
         public void getRFC ( int RFCNumber ) {
-            String peerAddress = "";
             for ( int i = 0; i < rfcIndex.size(); i++ ) {
                 final RFC r = rfcIndex.get( i );
                 if ( r.rfcNumber == RFCNumber ) {
-                    peerAddress = r.hostname;
-                    System.out.println( peerAddress );
-                    break;
+                    return;
                 }
             }
+            String peerAddress = "";
             int peerPort = 0;
-            try {
-                for ( int i = 0; i < peerList.size(); i++ ) {
-                    final PeerRecord p = peerList.get( i );
-                    System.out.println( p.getPortNumber() );
-                    System.out.println( p.getHostname() );
-
-                    if ( p.getPortNumber() != localPortNumber && p.getHostname().trim().equals( peerAddress ) ) {
-                        peerPort = peerList.get( i ).getPortNumber();
+            for ( int j = 0; j < peerList.size(); j++ ) {
+                // update the RFC index
+                getIndex( peerList.get( j ) );
+                for ( int i = 0; i < rfcIndex.size(); i++ ) {
+                    final RFC r = rfcIndex.get( i );
+                    if ( r.rfcNumber == RFCNumber ) {
+                        peerAddress = r.hostname;
+                        peerPort = peerList.get( j ).getPortNumber();
                         break;
                     }
                 }
+                if ( !peerAddress.isEmpty() ) {
+                    break;
+                }
+            }
+
+            try {
 
                 // Try to create a socket connection to the given port
                 // number.
@@ -169,10 +158,13 @@ public class PeerClientServer {
                 FileOutputStream fos = null;
                 BufferedOutputStream bos = null;
 
+                String filename = new File( "" ).getAbsolutePath();
+                filename = filename.concat( "/401_proj1/data/rfc1/rfc" + RFCNumber + ".txt" );
+
                 // receive file
                 final byte[] mybytearray = new byte[600000];
                 // temporarily use hello.txt to ensure it is working.
-                fos = new FileOutputStream( "hello.txt" );
+                fos = new FileOutputStream( filename );
                 bos = new BufferedOutputStream( fos );
                 bytesRead = input.read( mybytearray, 0, mybytearray.length );
                 current = bytesRead;
@@ -199,12 +191,12 @@ public class PeerClientServer {
             try {
                 // Try to create a socket connection to the given port
                 // number.
-                final Socket sock = new Socket( hostName, portNumber );
+                final Socket sock = new Socket( "10.152.49.66", portNumber );
                 // Get formatted input/output streams for talking with the
                 // server.
                 final ObjectInputStream input = new ObjectInputStream( sock.getInputStream() );
                 final ObjectOutputStream output = new ObjectOutputStream( sock.getOutputStream() );
-                final String message = "PQuery" + "\n" + "Host: " + ipAddress + "\n" + "Cookie: " + 0 + "\n";
+                final String message = "PQuery" + "\n" + "Host: " + ipAddress + "\n" + "Cookie: " + cookieNumber + "\n";
                 output.writeUTF( message );
                 output.flush();
                 peerList = (LinkedList<PeerRecord>) input.readObject();
@@ -323,6 +315,7 @@ public class PeerClientServer {
 
     public static void main ( String[] args ) throws InterruptedException, ClassNotFoundException {
         // Create random local port number
+        final int folderTest = 1;
         localPortNumber = ( new Random() ).nextInt( 10000 ) + 1050;
         // print it out so it is easier to test
         System.out.println( localPortNumber );
@@ -338,13 +331,26 @@ public class PeerClientServer {
         }
         rfcIndex = new LinkedList<RFC>();
         // check to see which of the 60 most recent RFCs we have
-        for ( int i = 8423; i <= 8496; i++ ) {
-            String filename = new File( "" ).getAbsolutePath();
-            filename = filename.concat( "/401_proj1/data/latest_60RFCs/rfc" + i + ".txt" );
-            final File f = new File( filename );
-            if ( f.exists() ) {
-                final RFC r = new RFC( i, filename, ipAddress );
-                rfcIndex.add( r );
+        if ( folderTest == 1 ) {
+            for ( int i = 8423; i <= 8450; i++ ) {
+                String filename = new File( "" ).getAbsolutePath();
+                filename = filename.concat( "/401_proj1/data/rfc1/rfc" + i + ".txt" );
+                final File f = new File( filename );
+                if ( f.exists() ) {
+                    final RFC r = new RFC( i, filename, ipAddress );
+                    rfcIndex.add( r );
+                }
+            }
+        }
+        else {
+            for ( int i = 8423; i <= 8496; i++ ) {
+                String filename = new File( "" ).getAbsolutePath();
+                filename = filename.concat( "/401_proj1/data/rfc2/rfc" + i + ".txt" );
+                final File f = new File( filename );
+                if ( f.exists() ) {
+                    final RFC r = new RFC( i, filename, ipAddress );
+                    rfcIndex.add( r );
+                }
             }
         }
 
@@ -364,7 +370,7 @@ public class PeerClientServer {
 
         // Register the client
         try {
-            final Socket mySocket = new Socket( hostName, portNumber );
+            final Socket mySocket = new Socket( "10.152.49.66", portNumber );
             final ObjectOutputStream out = new ObjectOutputStream( mySocket.getOutputStream() );
             final ObjectInputStream in = new ObjectInputStream( mySocket.getInputStream() );
             register( out, in );
@@ -399,14 +405,17 @@ public class PeerClientServer {
     }
 
     public static void register ( final ObjectOutputStream out, final ObjectInputStream in ) {
-        final String registerMessage = "Register" + "\n" + "Host: " + ipAddress + "\n" + "Cookie: " + 0 + "\n"
+        final String registerMessage = "Register" + "\n" + "Host: " + ipAddress + "\n" + "Cookie: " + -1 + "\n"
                 + "RFCServerPortNumber: " + localPortNumber + "\n";
 
         try {
             out.writeUTF( registerMessage );
             out.flush();
-            final String returnMessage = in.readUTF();
-            System.out.println( returnMessage );
+            cookieNumber = in.readInt();
+            if ( cookieNumber == -1 ) {
+                System.out.println( "error with registering" );
+            }
+            System.out.println( cookieNumber );
         }
         catch ( final IOException e ) {
             e.getMessage();
