@@ -1,23 +1,28 @@
 package data_model;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class PeerRecord {
+public class PeerRecord implements Serializable {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = -9026094576599474511L;
     /** hostname of peer */
-    public String  hostname;
+    public String             hostname;
     /** cookie for this registered peer */
-    public int     cookie;
+    public int                cookie;
     /** whether the peer is still in the system */
-    public boolean active;
+    public boolean            active;
     /** Time To Live */
-    public int     ttl;
+    public int                ttl;
     /** port number the RFC server is listening to */
-    public int     portNumber;
+    public int                portNumber;
     /** number of times the peer has registered during the last 30 days */
-    public int     activityNumber;
+    public int                activityNumber;
     /** last time /date the peer registered */
-    public String  lastRegisteredDate;
+    public String             lastRegisteredDate;
 
     public PeerRecord ( final String hostname, final int cookie, final int portNumber, final boolean active ) {
 
