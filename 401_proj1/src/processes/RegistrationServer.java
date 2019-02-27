@@ -31,6 +31,9 @@ public class RegistrationServer {
             e.printStackTrace();
             System.exit( 1 );
         }
+        
+        TimerThread timer = new TimerThread(); 
+        timer.start(); 
 
         // Keep trying to accept new connections and serve them.
         while ( true ) {
@@ -45,6 +48,38 @@ public class RegistrationServer {
                 System.err.println( "Failure accepting client " + e );
             }
         }
+    }
+    
+    
+    private static class TimerThread extends Thread { 
+      
+      
+      public TimerThread() { 
+        super("TimerThread"); 
+      }
+      
+      public void run() { 
+        try { 
+          while(true) { 
+            Thread.sleep(1000);
+            for(int i = 0; i < peerList.size(); i++) { 
+              PeerRecord thispeer = peerList.get(i); 
+              thispeer.ttl--;
+              if(thispeer.ttl <= 0) { 
+                thispeer.active = false; 
+              }
+              
+            }
+            
+          }
+        }
+        catch(InterruptedException e) { 
+          e.getStackTrace(); 
+        }
+        
+        
+      }
+      
     }
 
 }
