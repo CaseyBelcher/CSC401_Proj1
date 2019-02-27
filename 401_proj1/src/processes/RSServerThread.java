@@ -90,7 +90,7 @@ public class RSServerThread extends Thread {
             }
         }
         try {
-            out.writeUTF( "OK" );
+            out.writeUTF( "200 OK" );
             out.flush();
         }
         catch ( final IOException e ) {
@@ -119,7 +119,7 @@ public class RSServerThread extends Thread {
             }
         }
         try {
-            out.writeUTF( "OK" );
+            out.writeUTF( "200 OK" );
             out.flush();
         }
         catch ( final IOException e ) {
@@ -161,12 +161,12 @@ public class RSServerThread extends Thread {
             peerList.add( newPeer );
 
             // change later
-            out.writeInt( peerList.size() - 1 );
+            out.writeUTF( "200 OK" );
             out.flush();
 
         }
         else {
-            out.writeInt( -1 );
+            out.writeUTF( "200 OK" );
             out.flush();
         }
 
@@ -190,6 +190,8 @@ public class RSServerThread extends Thread {
                     temp.add( p );
                 }
             }
+            out.writeUTF( "200 OK" );
+            out.flush();
             out.writeObject( temp );
             out.flush();
         }
