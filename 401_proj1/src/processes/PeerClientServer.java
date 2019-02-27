@@ -22,13 +22,15 @@ import data_model.RFC;
 public class PeerClientServer {
 
     public static LinkedList<RFC>        rfcIndex;
-    // TODO: find correct non-local hostname
     private static String                hostName;
     public static int                    portNumber = 65243;
     public static int                    localPortNumber;
     public static LinkedList<PeerRecord> peerList;
     public static int                    cookieNumber;
     public static String                 ipAddress;
+
+    // this is set to whichever ip address the server is
+    public static String                 serverIpAddress;
 
     /**
      * Thread that interacts with the user from the terminal to do the requested
@@ -53,15 +55,15 @@ public class PeerClientServer {
                 final String request = s.nextLine();
                 if ( request.equals( "pquery" ) ) {
                     pQuery();
-                    // else the command is get a specific RFC
-                    // parse the input for which rfc
                 }
                 else if ( request.equals( "leave" ) ) {
                     leave();
                 }
                 else if ( request.startsWith( "get" ) ) {
                     final Scanner lineScan = new Scanner( request );
+                    // skip over get
                     lineScan.next();
+                    // get the desired RFC number
                     final int rfcNumber = lineScan.nextInt();
                     getRFC( rfcNumber );
                 }
@@ -78,6 +80,9 @@ public class PeerClientServer {
             }
         }
 
+        /**
+         * This is used for when the client wants to register again
+         */
         public void register () {
 
             final String registerMessage = "Register" + "\n" + "Host: " + ipAddress + "\n" + "Cookie: " + cookieNumber
@@ -86,7 +91,7 @@ public class PeerClientServer {
             try {
                 // Try to create a socket connection to the given port
                 // number.
-                final Socket sock = new Socket( "10.154.32.240", portNumber );
+                final Socket sock = new Socket( serverIpAddress, portNumber );
                 // Get formatted input/output streams for talking with the
                 // server.
                 final ObjectInputStream input = new ObjectInputStream( sock.getInputStream() );
@@ -101,11 +106,14 @@ public class PeerClientServer {
             }
         }
 
+        /**
+         * this is used for when the client wants to leave
+         */
         public void leave () {
             try {
                 // Try to create a socket connection to the given port
                 // number.
-                final Socket sock = new Socket( "10.154.32.240", portNumber );
+                final Socket sock = new Socket( serverIpAddress, portNumber );
                 // Get formatted input/output streams for talking with the
                 // server.
                 final ObjectInputStream input = new ObjectInputStream( sock.getInputStream() );
@@ -125,11 +133,15 @@ public class PeerClientServer {
 
         }
 
+        /**
+         * this is used for when the client wants to notify the RS server to
+         * keep it alive
+         */
         public void keepAlive () {
             try {
                 // Try to create a socket connection to the given port
                 // number.
-                final Socket sock = new Socket( "10.154.32.240", portNumber );
+                final Socket sock = new Socket( serverIpAddress, portNumber );
                 // Get formatted input/output streams for talking with the
                 // server.
                 final ObjectInputStream input = new ObjectInputStream( sock.getInputStream() );
@@ -184,21 +196,18 @@ public class PeerClientServer {
 
         /**
          * Sends a message to the RFC Server asking for a specific RFC it has
-         * and uploads it to a file locally
+         * and uploads it to a file locally The file transfer is based on an
+         * implementation at https://www.rgagnon.com/javadetails/java-0542.html
          *
          * @param output
          * @param input
          * @param RFCNumber
          */
         public void getRFC ( int RFCNumber ) {
-            for ( int i = 0; i < rfcIndex.size(); i++ ) {
-                final RFC r = rfcIndex.get( i );
-                if ( r.rfcNumber == RFCNumber ) {
-                    return;
-                }
-            }
             String peerAddress = "";
             int peerPort = 0;
+
+            // This retrieves the host with the desired RFC text file
             for ( int j = 0; j < peerList.size(); j++ ) {
                 // update the RFC index
                 getIndex( peerList.get( j ) );
@@ -237,7 +246,7 @@ public class PeerClientServer {
                 BufferedOutputStream bos = null;
 
                 String filename = new File( "" ).getAbsolutePath();
-                filename = filename.concat( "/401_proj1/data/rfc1/rfc" + RFCNumber + ".txt" );
+                filename = filename.concat( "/401_proj1/data/latest_60RFCs/rfc" + RFCNumber + ".txt" );
 
                 // receive file
                 final byte[] mybytearray = new byte[600000];
@@ -266,12 +275,16 @@ public class PeerClientServer {
             }
         }
 
+        /**
+         * This is for when the client wants to get a list of active peers from
+         * the RS server
+         */
         public static void pQuery () {
 
             try {
                 // Try to create a socket connection to the given port
                 // number.
-                final Socket sock = new Socket( "10.154.32.240", portNumber );
+                final Socket sock = new Socket( serverIpAddress, portNumber );
                 // Get formatted input/output streams for talking with the
                 // server.
                 final ObjectInputStream input = new ObjectInputStream( sock.getInputStream() );
@@ -356,7 +369,9 @@ public class PeerClientServer {
         }
 
         /**
-         * Retrieves the RFC it has locally and sends it to the client
+         * Retrieves the RFC it has locally and sends it to the client The file
+         * transfer is based on an implementation at
+         * https://www.rgagnon.com/javadetails/java-0542.html
          *
          * @param number
          * @param output
@@ -406,9 +421,9 @@ public class PeerClientServer {
 
     public static void main ( String[] args ) throws InterruptedException, ClassNotFoundException {
         // Create random local port number
-        final int folderTest = 1;
         localPortNumber = ( new Random() ).nextInt( 10000 ) + 1050;
 
+        // Get the local ip Address
         try {
             final InetAddress ip = InetAddress.getLocalHost();
             ipAddress = ip.getHostAddress();
@@ -418,31 +433,24 @@ public class PeerClientServer {
             System.err.println( "Can't find localhost???" );
             System.exit( 1 );
         }
+
+        // Set the server ip Address to the local address for now
+        serverIpAddress = ipAddress;
+
+        // initialize the rfcIndex
         rfcIndex = new LinkedList<RFC>();
+
         // check to see which of the 60 most recent RFCs we have
-        if ( folderTest == 1 ) {
-            for ( int i = 8423; i <= 8424; i++ ) {
-                String filename = new File( "" ).getAbsolutePath();
-                filename = filename.concat( "/401_proj1/data/rfc1/rfc" + i + ".txt" );
-                final File f = new File( filename );
-                if ( f.exists() ) {
-                    final RFC r = new RFC( i, filename, ipAddress );
-                    rfcIndex.add( r );
-                }
-            }
-            System.out.println( rfcIndex.size() );
-        }
-        else {
-            for ( int i = 8423; i <= 8424; i++ ) {
-                String filename = new File( "" ).getAbsolutePath();
-                filename = filename.concat( "/401_proj1/data/rfc2/rfc" + i + ".txt" );
-                final File f = new File( filename );
-                if ( f.exists() ) {
-                    final RFC r = new RFC( i, filename, ipAddress );
-                    rfcIndex.add( r );
-                }
+        for ( int i = 8423; i <= 8496; i++ ) {
+            String filename = new File( "" ).getAbsolutePath();
+            filename = filename.concat( "/401_proj1/data/latest_60RFCs/rfc" + i + ".txt" );
+            final File f = new File( filename );
+            if ( f.exists() ) {
+                final RFC r = new RFC( i, filename, ipAddress );
+                rfcIndex.add( r );
             }
         }
+        System.out.println( rfcIndex.size() );
 
         ServerSocket serverSocket = null;
 
@@ -460,7 +468,7 @@ public class PeerClientServer {
 
         // Register the client
         try {
-            final Socket mySocket = new Socket( "10.154.32.240", portNumber );
+            final Socket mySocket = new Socket( serverIpAddress, portNumber );
             final ObjectOutputStream out = new ObjectOutputStream( mySocket.getOutputStream() );
             final ObjectInputStream in = new ObjectInputStream( mySocket.getInputStream() );
             register( out, in );
@@ -494,6 +502,13 @@ public class PeerClientServer {
         }
     }
 
+    /**
+     * This is used for when the client initially registers with the server and
+     * just sends a cookie of -1 and gets back its assigned cookie
+     *
+     * @param out
+     * @param in
+     */
     public static void register ( final ObjectOutputStream out, final ObjectInputStream in ) {
         final String registerMessage = "Register" + "\n" + "Host: " + ipAddress + "\n" + "Cookie: " + -1 + "\n"
                 + "RFCServerPortNumber: " + localPortNumber + "\n";

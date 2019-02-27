@@ -10,8 +10,6 @@ import java.util.Scanner;
 
 import data_model.PeerRecord;
 
-// TODO: MUST ALSO BE MADE THREADSAFE when accessing
-// TODO: what happens in peer disconnects in the middle of outputting?
 public class RSServerThread extends Thread {
 
     private Socket                       socket               = null;
@@ -29,13 +27,6 @@ public class RSServerThread extends Thread {
     }
 
     /**
-     * PQuery <cr> <lf> Host: <sp> value <cr> <lf> Cookie: <sp> value <cr> <lf>
-     * RFCServerPortNumber: <sp> value <cr> <lf> <cr> <lf>
-     *
-     * KeepAlive <cr> <lf> Host: <sp> value <cr> <lf> Cookie: <sp> value <cr>
-     * <lf> <cr> <lf>
-     *
-     * Leaving <cr> <lf> Host: <sp> value <cr> <lf> Cookie: <sp> value <cr> <lf>
      * <cr> <lf>
      *
      *
@@ -44,8 +35,6 @@ public class RSServerThread extends Thread {
      * asking for list of active peers KeepAlive - peer periodically sends this
      * to RS to reset its TTL in peer list
      *
-     * method = obj.getClass().getMethod(methodName, param1.class, param2.class,
-     * ..); }
      *
      * @throws IOException
      *
@@ -55,6 +44,8 @@ public class RSServerThread extends Thread {
         final String output = "";
         final Scanner s = new Scanner( message );
         final String header = s.nextLine();
+
+        // Based on the header goes to desired method
         if ( header.equals( "Register" ) ) {
             register( message, out );
         }
@@ -71,6 +62,12 @@ public class RSServerThread extends Thread {
         return output;
     }
 
+    /**
+     * Resets the peers ttl to 7200
+     * 
+     * @param message
+     * @param out
+     */
     public void keepAlive ( String message, ObjectOutputStream out ) {
 
         final Scanner s = new Scanner( message );
@@ -99,6 +96,12 @@ public class RSServerThread extends Thread {
         s.close();
     }
 
+    /**
+     * Sets the peer to inactive
+     *
+     * @param message
+     * @param out
+     */
     public void leave ( String message, ObjectOutputStream out ) {
 
         final Scanner s = new Scanner( message );
@@ -127,6 +130,14 @@ public class RSServerThread extends Thread {
         s.close();
     }
 
+    /**
+     * Adds the peer to the peer list if it is not already in there else it
+     * moves its status from inactive to active
+     * 
+     * @param message
+     * @param out
+     * @throws IOException
+     */
     public void register ( String message, ObjectOutputStream out ) throws IOException {
         final Scanner s = new Scanner( message );
         // skip over header
@@ -172,6 +183,12 @@ public class RSServerThread extends Thread {
 
     }
 
+    /**
+     * Returns the peer list to the client
+     *
+     * @param message
+     * @param out
+     */
     public void pQuery ( String message, ObjectOutputStream out ) {
         final Scanner s = new Scanner( message );
         // skip over header

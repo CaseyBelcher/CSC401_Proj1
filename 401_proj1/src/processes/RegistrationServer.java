@@ -16,6 +16,8 @@ public class RegistrationServer {
     public static void main ( String[] args ) {
 
         System.out.println( "Starting RS server..." );
+
+        // initialize the peer list
         peerList = new LinkedList<PeerRecord>();
 
         ServerSocket serverSocket = null;
@@ -32,6 +34,7 @@ public class RegistrationServer {
             System.exit( 1 );
         }
 
+        // start a thread to decrement the ttls
         final TimerThread timer = new TimerThread();
         timer.start();
 
@@ -50,6 +53,11 @@ public class RegistrationServer {
         }
     }
 
+    /**
+     *
+     * Thread to decrement each of the ttls in the peer list every second
+     *
+     */
     private static class TimerThread extends Thread {
 
         public TimerThread () {
