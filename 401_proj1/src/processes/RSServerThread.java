@@ -61,76 +61,74 @@ public class RSServerThread extends Thread {
         else if ( header.equals( "PQuery" ) ) {
             pQuery( message, out );
         }
-        else if (header.equals("KeepAlive")) { 
-            keepAlive(message, out); 
+        else if ( header.equals( "KeepAlive" ) ) {
+            keepAlive( message, out );
         }
-        else if (header.equals("Leave")) { 
-            leave(message, out); 
+        else if ( header.equals( "Leave" ) ) {
+            leave( message, out );
         }
 
         return output;
     }
 
-    
-    public void keepAlive(String message, ObjectOutputStream out) { 
-      
-      final Scanner s = new Scanner( message );
-      // skip over header
-      s.nextLine();
-      // skip over "Host: "
-      s.nextLine();
-      // skip over cookie for now
-      s.next();
-      currentCookie = s.nextInt();
-      s.nextLine();
-      
-      for(int i = 0; i < peerList.size(); i++) { 
-        PeerRecord thispeer = peerList.get(i); 
-        if(thispeer.cookie == currentCookie) { 
-          thispeer.ttl = 7200; 
+    public void keepAlive ( String message, ObjectOutputStream out ) {
+
+        final Scanner s = new Scanner( message );
+        // skip over header
+        s.nextLine();
+        // skip over "Host: "
+        s.nextLine();
+        // skip over cookie for now
+        s.next();
+        currentCookie = s.nextInt();
+        s.nextLine();
+
+        for ( int i = 0; i < peerList.size(); i++ ) {
+            final PeerRecord thispeer = peerList.get( i );
+            if ( thispeer.cookie == currentCookie ) {
+                thispeer.ttl = 7200;
+            }
         }
-      }
-      try { 
-        out.writeUTF("OK");
-        out.flush();
-      }
-      catch(IOException e) { 
-        e.printStackTrace();
-      }
-      
-      s.close();
-    }
-    
-public void leave(String message, ObjectOutputStream out) { 
-      
-      final Scanner s = new Scanner( message );
-      // skip over header
-      s.nextLine();
-      // skip over "Host: "
-      s.nextLine();
-      // skip over cookie for now
-      s.next();
-      currentCookie = s.nextInt();
-      s.nextLine();
-      
-      for(int i = 0; i < peerList.size(); i++) { 
-        PeerRecord thispeer = peerList.get(i); 
-        if(thispeer.cookie == currentCookie) { 
-          thispeer.active = false; 
+        try {
+            out.writeUTF( "OK" );
+            out.flush();
         }
-      }
-      try { 
-        out.writeUTF("OK");
-        out.flush();
-      }
-      catch(IOException e) { 
-        e.printStackTrace();
-      }
-      
-      s.close();
+        catch ( final IOException e ) {
+            e.printStackTrace();
+        }
+
+        s.close();
     }
-    
-    
+
+    public void leave ( String message, ObjectOutputStream out ) {
+
+        final Scanner s = new Scanner( message );
+        // skip over header
+        s.nextLine();
+        // skip over "Host: "
+        s.nextLine();
+        // skip over cookie for now
+        s.next();
+        currentCookie = s.nextInt();
+        s.nextLine();
+
+        for ( int i = 0; i < peerList.size(); i++ ) {
+            final PeerRecord thispeer = peerList.get( i );
+            if ( thispeer.cookie == currentCookie ) {
+                thispeer.active = false;
+            }
+        }
+        try {
+            out.writeUTF( "OK" );
+            out.flush();
+        }
+        catch ( final IOException e ) {
+            e.printStackTrace();
+        }
+
+        s.close();
+    }
+
     public void register ( String message, ObjectOutputStream out ) throws IOException {
         final Scanner s = new Scanner( message );
         // skip over header
@@ -200,14 +198,6 @@ public void leave(String message, ObjectOutputStream out) {
             e.printStackTrace();
         }
 
-    }
-
-    public String keepAlive () {
-        return "its-a-me...keepAlive!";
-    }
-
-    public String leaving () {
-        return "imma leaving!";
     }
 
     @Override

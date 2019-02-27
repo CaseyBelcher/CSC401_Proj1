@@ -51,24 +51,106 @@ public class PeerClientServer {
             System.out.print( "Enter a command: " );
             while ( true ) {
                 final String request = s.nextLine();
-                if ( request.equals( "p" ) ) {
+                if ( request.equals( "pquery" ) ) {
                     pQuery();
                     // else the command is get a specific RFC
                     // parse the input for which rfc
                 }
                 else if ( request.equals( "leave" ) ) {
-                    break;
+                    leave();
                 }
-                else {
+                else if ( request.startsWith( "get" ) ) {
                     final Scanner lineScan = new Scanner( request );
                     lineScan.next();
                     final int rfcNumber = lineScan.nextInt();
                     getRFC( rfcNumber );
                 }
+                else if ( request.equals( "register" ) ) {
+                    register();
+                }
+                else if ( request.equals( "keep alive" ) ) {
+                    keepAlive();
+                }
+                else {
+                    System.out.println( "Please enter a valid command" );
+                }
                 System.out.print( "Enter a command: " );
                 // sock.close();
             }
-            System.out.println( "gone" );
+        }
+
+        public void register () {
+
+            final String registerMessage = "Register" + "\n" + "Host: " + ipAddress + "\n" + "Cookie: " + cookieNumber
+                    + "\n" + "RFCServerPortNumber: " + localPortNumber + "\n";
+
+            try {
+                // Try to create a socket connection to the given port
+                // number.
+                final Socket sock = new Socket( "10.152.49.66", portNumber );
+                // Get formatted input/output streams for talking with the
+                // server.
+                final ObjectInputStream input = new ObjectInputStream( sock.getInputStream() );
+                final ObjectOutputStream output = new ObjectOutputStream( sock.getOutputStream() );
+                output.writeUTF( registerMessage );
+                output.flush();
+                cookieNumber = input.readInt();
+                if ( cookieNumber == -1 ) {
+                    System.out.println( "success" );
+                }
+                System.out.println( cookieNumber );
+                sock.close();
+            }
+            catch ( final IOException e ) {
+                e.getMessage();
+            }
+        }
+
+        public void leave () {
+            try {
+                // Try to create a socket connection to the given port
+                // number.
+                final Socket sock = new Socket( "10.152.49.66", portNumber );
+                // Get formatted input/output streams for talking with the
+                // server.
+                final ObjectInputStream input = new ObjectInputStream( sock.getInputStream() );
+                final ObjectOutputStream output = new ObjectOutputStream( sock.getOutputStream() );
+                final StringBuilder message = new StringBuilder( "Leaving\nHost: " );
+                message.append( ipAddress );
+                message.append( "\nCookie: " );
+                message.append( cookieNumber );
+                output.writeUTF( message.toString() );
+                output.flush();
+                System.out.println( input.readUTF() );
+                sock.close();
+            }
+            catch ( final IOException e ) {
+                e.getMessage();
+            }
+
+        }
+
+        public void keepAlive () {
+            try {
+                // Try to create a socket connection to the given port
+                // number.
+                final Socket sock = new Socket( "10.152.49.66", portNumber );
+                // Get formatted input/output streams for talking with the
+                // server.
+                final ObjectInputStream input = new ObjectInputStream( sock.getInputStream() );
+                final ObjectOutputStream output = new ObjectOutputStream( sock.getOutputStream() );
+                final StringBuilder message = new StringBuilder( "KeepAlive\nHost: " );
+                message.append( ipAddress );
+                message.append( "\nCookie: " );
+                message.append( cookieNumber );
+                output.writeUTF( message.toString() );
+                output.flush();
+                System.out.println( input.readUTF() );
+                sock.close();
+            }
+            catch ( final IOException e ) {
+                e.getMessage();
+            }
         }
 
         /**
