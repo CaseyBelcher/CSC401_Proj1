@@ -93,11 +93,11 @@ public class RSServerThread extends Thread {
         }
 
         if ( !found ) {
-            final PeerRecord newPeer = new PeerRecord( hostAddress, 0, localPort );
+            final PeerRecord newPeer = new PeerRecord( hostAddress, peerList.size(), localPort );
             peerList.add( newPeer );
 
             // change later
-            out.writeInt( peerList.size() );
+            out.writeInt( peerList.size() - 1 );
             out.flush();
 
         }

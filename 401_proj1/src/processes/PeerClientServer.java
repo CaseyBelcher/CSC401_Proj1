@@ -128,7 +128,7 @@ public class PeerClientServer {
                 for ( int i = 0; i < rfcIndex.size(); i++ ) {
                     final RFC r = rfcIndex.get( i );
                     if ( r.rfcNumber == RFCNumber ) {
-                        peerAddress = r.hostname;
+                        peerAddress = r.hostname.trim();
                         peerPort = peerList.get( j ).getPortNumber();
                         break;
                     }
@@ -341,6 +341,7 @@ public class PeerClientServer {
                     rfcIndex.add( r );
                 }
             }
+            System.out.println( rfcIndex.size() );
         }
         else {
             for ( int i = 8423; i <= 8496; i++ ) {
