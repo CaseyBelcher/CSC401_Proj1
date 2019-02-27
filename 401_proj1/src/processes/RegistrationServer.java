@@ -31,9 +31,9 @@ public class RegistrationServer {
             e.printStackTrace();
             System.exit( 1 );
         }
-        
-        TimerThread timer = new TimerThread(); 
-        timer.start(); 
+
+        final TimerThread timer = new TimerThread();
+        timer.start();
 
         // Keep trying to accept new connections and serve them.
         while ( true ) {
@@ -49,37 +49,35 @@ public class RegistrationServer {
             }
         }
     }
-    
-    
-    private static class TimerThread extends Thread { 
-      
-      
-      public TimerThread() { 
-        super("TimerThread"); 
-      }
-      
-      public void run() { 
-        try { 
-          while(true) { 
-            Thread.sleep(1000);
-            for(int i = 0; i < peerList.size(); i++) { 
-              PeerRecord thispeer = peerList.get(i); 
-              thispeer.ttl--;
-              if(thispeer.ttl <= 0) { 
-                thispeer.active = false; 
-              }
-              
+
+    private static class TimerThread extends Thread {
+
+        public TimerThread () {
+            super( "TimerThread" );
+        }
+
+        @Override
+        public void run () {
+            try {
+                while ( true ) {
+                    Thread.sleep( 1000 );
+                    for ( int i = 0; i < peerList.size(); i++ ) {
+                        final PeerRecord thispeer = peerList.get( i );
+                        thispeer.ttl--;
+                        if ( thispeer.ttl <= 0 ) {
+                            thispeer.active = false;
+                        }
+
+                    }
+
+                }
             }
-            
-          }
+            catch ( final InterruptedException e ) {
+                e.getStackTrace();
+            }
+
         }
-        catch(InterruptedException e) { 
-          e.getStackTrace(); 
-        }
-        
-        
-      }
-      
+
     }
 
 }

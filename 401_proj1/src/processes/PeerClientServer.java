@@ -86,7 +86,7 @@ public class PeerClientServer {
             try {
                 // Try to create a socket connection to the given port
                 // number.
-                final Socket sock = new Socket( "10.152.49.66", portNumber );
+                final Socket sock = new Socket( "10.154.32.240", portNumber );
                 // Get formatted input/output streams for talking with the
                 // server.
                 final ObjectInputStream input = new ObjectInputStream( sock.getInputStream() );
@@ -105,7 +105,7 @@ public class PeerClientServer {
             try {
                 // Try to create a socket connection to the given port
                 // number.
-                final Socket sock = new Socket( "10.152.49.66", portNumber );
+                final Socket sock = new Socket( "10.154.32.240", portNumber );
                 // Get formatted input/output streams for talking with the
                 // server.
                 final ObjectInputStream input = new ObjectInputStream( sock.getInputStream() );
@@ -129,7 +129,7 @@ public class PeerClientServer {
             try {
                 // Try to create a socket connection to the given port
                 // number.
-                final Socket sock = new Socket( "10.152.49.66", portNumber );
+                final Socket sock = new Socket( "10.154.32.240", portNumber );
                 // Get formatted input/output streams for talking with the
                 // server.
                 final ObjectInputStream input = new ObjectInputStream( sock.getInputStream() );
@@ -271,7 +271,7 @@ public class PeerClientServer {
             try {
                 // Try to create a socket connection to the given port
                 // number.
-                final Socket sock = new Socket( "10.152.49.66", portNumber );
+                final Socket sock = new Socket( "10.154.32.240", portNumber );
                 // Get formatted input/output streams for talking with the
                 // server.
                 final ObjectInputStream input = new ObjectInputStream( sock.getInputStream() );
@@ -279,8 +279,14 @@ public class PeerClientServer {
                 final String message = "PQuery" + "\n" + "Host: " + ipAddress + "\n" + "Cookie: " + cookieNumber + "\n";
                 output.writeUTF( message );
                 output.flush();
-                System.out.println( input.readUTF() );
-                peerList = (LinkedList<PeerRecord>) input.readObject();
+                final String returnMessage = input.readUTF();
+                if ( returnMessage.equals( "400 No Active Peers" ) ) {
+                    System.out.println( returnMessage );
+                }
+                else {
+                    System.out.println( returnMessage );
+                    peerList = (LinkedList<PeerRecord>) input.readObject();
+                }
                 sock.close();
 
             }
@@ -415,7 +421,7 @@ public class PeerClientServer {
         rfcIndex = new LinkedList<RFC>();
         // check to see which of the 60 most recent RFCs we have
         if ( folderTest == 1 ) {
-            for ( int i = 8423; i <= 8450; i++ ) {
+            for ( int i = 8423; i <= 8424; i++ ) {
                 String filename = new File( "" ).getAbsolutePath();
                 filename = filename.concat( "/401_proj1/data/rfc1/rfc" + i + ".txt" );
                 final File f = new File( filename );
@@ -427,7 +433,7 @@ public class PeerClientServer {
             System.out.println( rfcIndex.size() );
         }
         else {
-            for ( int i = 8423; i <= 8496; i++ ) {
+            for ( int i = 8423; i <= 8424; i++ ) {
                 String filename = new File( "" ).getAbsolutePath();
                 filename = filename.concat( "/401_proj1/data/rfc2/rfc" + i + ".txt" );
                 final File f = new File( filename );
@@ -454,7 +460,7 @@ public class PeerClientServer {
 
         // Register the client
         try {
-            final Socket mySocket = new Socket( "10.152.49.66", portNumber );
+            final Socket mySocket = new Socket( "10.154.32.240", portNumber );
             final ObjectOutputStream out = new ObjectOutputStream( mySocket.getOutputStream() );
             final ObjectInputStream in = new ObjectInputStream( mySocket.getInputStream() );
             register( out, in );
@@ -495,7 +501,12 @@ public class PeerClientServer {
         try {
             out.writeUTF( registerMessage );
             out.flush();
-            System.out.println( in.readUTF() );
+            final String returnMessage = in.readUTF();
+            final Scanner s = new Scanner( returnMessage );
+            s.nextLine();
+            s.next();
+            cookieNumber = s.nextInt();
+            System.out.println( returnMessage );
         }
         catch ( final IOException e ) {
             e.getMessage();

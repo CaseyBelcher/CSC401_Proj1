@@ -64,7 +64,7 @@ public class RSServerThread extends Thread {
         else if ( header.equals( "KeepAlive" ) ) {
             keepAlive( message, out );
         }
-        else if ( header.equals( "Leave" ) ) {
+        else if ( header.equals( "Leaving" ) ) {
             leave( message, out );
         }
 
@@ -81,7 +81,6 @@ public class RSServerThread extends Thread {
         // skip over cookie for now
         s.next();
         currentCookie = s.nextInt();
-        s.nextLine();
 
         for ( int i = 0; i < peerList.size(); i++ ) {
             final PeerRecord thispeer = peerList.get( i );
@@ -110,7 +109,6 @@ public class RSServerThread extends Thread {
         // skip over cookie for now
         s.next();
         currentCookie = s.nextInt();
-        s.nextLine();
 
         for ( int i = 0; i < peerList.size(); i++ ) {
             final PeerRecord thispeer = peerList.get( i );
@@ -161,7 +159,9 @@ public class RSServerThread extends Thread {
             peerList.add( newPeer );
 
             // change later
-            out.writeUTF( "200 OK" );
+            final int size = peerList.size() - 1;
+            final String messageToPass = "200 OK\nCookie: " + size;
+            out.writeUTF( messageToPass );
             out.flush();
 
         }
@@ -190,10 +190,16 @@ public class RSServerThread extends Thread {
                     temp.add( p );
                 }
             }
-            out.writeUTF( "200 OK" );
-            out.flush();
-            out.writeObject( temp );
-            out.flush();
+            if ( temp.isEmpty() ) {
+                out.writeUTF( "400 No Active Peers" );
+                out.flush();
+            }
+            else {
+                out.writeUTF( "200 OK" );
+                out.flush();
+                out.writeObject( temp );
+                out.flush();
+            }
         }
         catch ( final IOException e ) {
             // TODO Auto-generated catch block
