@@ -75,7 +75,6 @@ public class PeerClientServer {
                     System.out.println( "Please enter a valid command" );
                 }
                 System.out.print( "Enter a command: " );
-                // sock.close();
             }
         }
 
@@ -94,11 +93,7 @@ public class PeerClientServer {
                 final ObjectOutputStream output = new ObjectOutputStream( sock.getOutputStream() );
                 output.writeUTF( registerMessage );
                 output.flush();
-                cookieNumber = input.readInt();
-                if ( cookieNumber == -1 ) {
-                    System.out.println( "success" );
-                }
-                System.out.println( cookieNumber );
+                System.out.println( input.readUTF() );
                 sock.close();
             }
             catch ( final IOException e ) {
@@ -173,8 +168,8 @@ public class PeerClientServer {
                 message.append( p.getHostname().trim() );
                 output.writeUTF( message.toString() );
                 output.flush();
+                System.out.println( input.readUTF() );
                 final LinkedList<RFC> temp = (LinkedList<RFC>) input.readObject();
-                System.out.println( temp.size() );
                 for ( int i = 0; i < temp.size(); i++ ) {
                     if ( !rfcIndex.contains( temp.get( i ) ) ) {
                         rfcIndex.add( temp.get( i ) );
@@ -235,6 +230,7 @@ public class PeerClientServer {
                 message.append( peerAddress );
                 output.writeUTF( message.toString() );
                 output.flush();
+                System.out.println( input.readUTF() );
                 int bytesRead;
                 int current = 0;
                 FileOutputStream fos = null;
@@ -262,6 +258,8 @@ public class PeerClientServer {
                 bos.write( mybytearray, 0, current );
                 bos.flush();
                 sock.close();
+                final RFC r = new RFC( RFCNumber, filename, ipAddress );
+                rfcIndex.add( r );
             }
             catch ( final Exception e ) {
                 System.out.println( e.getMessage() );
@@ -281,8 +279,8 @@ public class PeerClientServer {
                 final String message = "PQuery" + "\n" + "Host: " + ipAddress + "\n" + "Cookie: " + cookieNumber + "\n";
                 output.writeUTF( message );
                 output.flush();
+                System.out.println( input.readUTF() );
                 peerList = (LinkedList<PeerRecord>) input.readObject();
-                System.out.println( peerList.size() );
                 sock.close();
 
             }
@@ -317,6 +315,7 @@ public class PeerClientServer {
                 final ObjectInputStream input = new ObjectInputStream( sock.getInputStream() );
                 final String request = input.readUTF();
                 process( request, output );
+                System.out.println( request );
 
             }
             catch ( final IOException e ) {
@@ -339,6 +338,8 @@ public class PeerClientServer {
          */
         public void getIndex ( ObjectOutputStream output ) {
             try {
+                output.writeUTF( "200 OK" );
+                output.flush();
                 output.writeObject( rfcIndex );
                 output.flush();
             }
@@ -363,6 +364,8 @@ public class PeerClientServer {
                         final FileInputStream fis = new FileInputStream( f );
                         final BufferedInputStream bis = new BufferedInputStream( fis );
                         bis.read( mybytearray, 0, mybytearray.length );
+                        output.writeUTF( "200 OK" );
+                        output.flush();
                         output.write( mybytearray, 0, mybytearray.length );
                         output.flush();
                     }
@@ -399,8 +402,6 @@ public class PeerClientServer {
         // Create random local port number
         final int folderTest = 1;
         localPortNumber = ( new Random() ).nextInt( 10000 ) + 1050;
-        // print it out so it is easier to test
-        System.out.println( localPortNumber );
 
         try {
             final InetAddress ip = InetAddress.getLocalHost();
@@ -494,11 +495,7 @@ public class PeerClientServer {
         try {
             out.writeUTF( registerMessage );
             out.flush();
-            cookieNumber = in.readInt();
-            if ( cookieNumber == -1 ) {
-                System.out.println( "error with registering" );
-            }
-            System.out.println( cookieNumber );
+            System.out.println( in.readUTF() );
         }
         catch ( final IOException e ) {
             e.getMessage();

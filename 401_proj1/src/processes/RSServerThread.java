@@ -212,7 +212,7 @@ public class RSServerThread extends Thread {
 
             final String message = input.readUTF();
             processInput( message, output, input );
-            System.out.println( peerList.size() );
+            System.out.println( message );
 
         }
         catch ( final IOException e ) {
